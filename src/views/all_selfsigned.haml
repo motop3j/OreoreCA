@@ -1,0 +1,27 @@
+%form{ :method => 'post', :role => 'form'}
+  .form-group
+    %input{ :type => 'text', :class => 'form-control', :name => 'cn', |
+            :id => 'commonName', :placeholder => 'Common Name' }
+  .form-group
+    %input{ :type => 'submit', :class => 'btn btn-default', :value => '作成' } 
+- if defined? @certificate
+  %div
+    自己証明書の作成に成功しました。(id: #{@certificate_id})
+    %pre= @certificate
+- if @certificate_info.size > 0
+  %table{ :class => 'table table-hover' }
+    %tr
+      %th ID
+      %th 作成日時(UTC)
+      %th Subject
+      %th notbefore
+      %th notafter
+    - @certificate_info.each do |row|
+      %tr
+        %td= row[0]
+        %td= row[1].slice(0, 19)
+        %td= row[2]
+        %td= row[3].slice(0, 19)
+        %td= row[4].slice(0, 19)
+
+-# vim: nowrap sw=2 sts=2
