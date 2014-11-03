@@ -6,7 +6,11 @@
     %input{ :type => 'submit', :class => 'btn btn-default', :value => '作成' } 
 - if defined? @certificate
   %div
-    自己証明書の作成に成功しました。(id: #{@certificate_id})
+    %p 自己証明書の作成に成功しました。(id: #{@certificate_id})
+    %p 
+      ダウンロード
+      %a{ :href => "/all/selfsigned/cer/#{@certificate_id}" } 公開証明書
+      %a{ :href => "/all/selfsigned/key/#{@certificate_id}" } 秘密鍵
     %pre= @certificate
 - if @certificate_info.size > 0
   %table{ :class => 'table table-hover' }
@@ -16,6 +20,7 @@
       %th Subject
       %th notbefore
       %th notafter
+      %th 証明書
     - @certificate_info.each do |row|
       %tr
         %td= row[0]
@@ -23,5 +28,8 @@
         %td= row[2]
         %td= row[3].slice(0, 19)
         %td= row[4].slice(0, 19)
+        %td
+          %a{ :href => "/all/selfsigned/cer/#{row[0]}" } 公開鍵
+          %a{ :href => "/all/selfsigned/key/#{row[0]}" } 秘密鍵
 
 -# vim: nowrap sw=2 sts=2

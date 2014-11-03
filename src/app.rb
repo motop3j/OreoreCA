@@ -40,6 +40,22 @@ def get_selfsignedcertificateinfo()
   rows
 end
 
+def get_selfsignedcertificate(id)
+  rows = nil
+  SQLite3::Database::new(get_dbpath) do |db|
+    sql = <<-'EOL'
+      select id, subject, notbefore, notafter, privatekey, digest, certificate, created
+      from selfsignedcertificates where id = ?
+    EOL
+    columns, *rows = db.execute2(sql, [id])
+    logger.info(columns)
+    logger.info(rows)
+  end
+  if rows.size == 0
+    return nil
+  end
+  rows[0]
+end
 
 def add_selfsignedcertificate(key, digest, cer)
   id = -1
@@ -92,8 +108,8 @@ post '/all/selfsigned' do
   if cn.strip.size == 0
     @errors.push 'Common Name が空です。'
   end
-  if not (/[^a-zA-Z0-9 ]/ =~ cn).nil?
-    @errors.push 'Common Name は半角英数とスペースで入力してください。'
+  if not (/[^a-zA-Z0-9 \.,-@]/ =~ cn).nil?
+    @errors.push 'Common Name で利用可能な文字は半角英数とスペース、特定の記号「.,-@」です。'
   end
   if cn.size > 64
     @errors.push 'Common Name は64文字以内で入力してください。'
@@ -129,3 +145,28 @@ post '/all/selfsigned' do
   haml :all_selfsigned
 end
 
+get '/all/selfsigned/key/:id' do |id|
+  if not (/[^\d]/ =~ id).nil?
+    return 'Invalid certificate id.'
+  end
+  cer = get_selfsignedcertificate(id)
+  if cer.nil?
+    return 'Invalid certificate id.'
+  end
+  content_type 'application/octet-stream'
+  attachment 'key%d.pem' % id
+  cer[4]
+end
+
+get '/all/selfsigned/cer/:id' do |id|
+  if not (/[^\d]/ =~ id).nil?
+    return 'Invalid certificate id.'
+  end
+  cer = get_selfsignedcertificate(id)
+  if cer.nil?
+    return 'Invalid certificate id.'
+  end
+  content_type 'application/octet-stream'
+  attachment 'cer%d.pem' % id
+  cer[6]
+end
