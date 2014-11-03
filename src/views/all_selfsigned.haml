@@ -9,7 +9,7 @@
     %p 自己証明書の作成に成功しました。(id: #{@certificate_id})
     %p 
       ダウンロード
-      %a{ :href => "/all/selfsigned/cer/#{@certificate_id}" } 公開証明書
+      %a{ :href => "/all/selfsigned/cer/#{@certificate_id}" } 公開鍵証明書
       %a{ :href => "/all/selfsigned/key/#{@certificate_id}" } 秘密鍵
     %pre= @certificate
 - if @certificate_info.size > 0
