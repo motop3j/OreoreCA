@@ -8,12 +8,12 @@ require 'sqlite3'
 WEBrick::Config::HTTP[:DoNotReverseLookup] = true
 
 def get_systemdata
-  { :systemname => 'Oreore CA.',
+  { :systemname => 'OreoreCA.',
     :copyrightyear => Time.now.year,
     :copyrighturl  => 'https://twitter.com/motop3j',
     :copyrightname => '@motop3j',
     :pathinfo => request.path_info,
-    :version => '0.0.1'}
+    :version => '0.0.2'}
 end
 
 def get_privatekey
@@ -31,8 +31,11 @@ end
 def get_selfsignedcertificateinfo()
   rows = nil
   SQLite3::Database::new(get_dbpath) do |db|
-    sql = 'select id, created, subject, notbefore, notafter from selfsignedcertificates '
-    sql += 'order by id desc'
+    sql = <<-'EOL'
+      select id, created, subject, notbefore, notafter 
+      from selfsignedcertificates
+      order by id desc
+    EOL
     columns, *rows = db.execute2(sql)
     logger.info(columns)
     logger.info(rows)
@@ -44,8 +47,11 @@ def get_selfsignedcertificate(id)
   rows = nil
   SQLite3::Database::new(get_dbpath) do |db|
     sql = <<-'EOL'
-      select id, subject, notbefore, notafter, privatekey, digest, certificate, created
-      from selfsignedcertificates where id = ?
+      select 
+        id, subject, notbefore, notafter, 
+        privatekey, digest, certificate, created
+      from selfsignedcertificates 
+      where id = ?
     EOL
     columns, *rows = db.execute2(sql, [id])
     logger.info(columns)
@@ -62,9 +68,12 @@ def add_selfsignedcertificate(key, digest, cer)
   SQLite3::Database::new(get_dbpath) do |db|
     begin
       db.transaction
-      sql = 'insert into selfsignedcertificates '
-      sql += '(subject, notbefore, notafter, privatekey, digest, certificate, created) '
-      sql += 'values (?, ?, ?, ?, ?, ?, ?)'
+      sql = <<-'EOL'
+        insert into selfsignedcertificates
+        ( subject, notbefore, notafter, 
+          privatekey, digest, certificate, created)
+        values (?, ?, ?, ?, ?, ?, ?)
+      EOL
       values = [ 
         cer.subject.to_s,
         cer.not_before.strftime("%Y-%m-%d %X:%M:%S"),
@@ -108,8 +117,10 @@ post '/all/selfsigned' do
   if cn.strip.size == 0
     @errors.push 'Common Name が空です。'
   end
-  if not (/[^a-zA-Z0-9 \.,-@]/ =~ cn).nil?
-    @errors.push 'Common Name で利用可能な文字は半角英数とスペース、特定の記号「.,-@」です。'
+  logger.info cn
+  if not (/[^a-zA-Z0-9 \.,\-@]/ =~ cn).nil?
+    @errors.push 'Common Name で利用可能な文字は半角英数とスペース、' \
+      + '特定の記号「.,-@」です。'
   end
   if cn.size > 64
     @errors.push 'Common Name は64文字以内で入力してください。'
@@ -123,8 +134,8 @@ post '/all/selfsigned' do
   key = get_privatekey
   digest = get_digest
   issu = sub = OpenSSL::X509::Name.new()
-  #sub.add_entry('C', 'JP')
-  #sub.add_entry('ST', 'Shimane')
+  sub.add_entry('C', 'JP')
+  sub.add_entry('ST', 'Shimane')
   sub.add_entry('CN', cn)
 
   cer = OpenSSL::X509::Certificate.new()

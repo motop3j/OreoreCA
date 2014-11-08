@@ -12,8 +12,9 @@
   フィッシング詐欺対策などにまったく効果を期待できません。
   この場合は、#{@system[:systemname]} はシステム構築時にテスト用証明書の作成を作成しないとならない場合などに、 openssl の使い方をググるコストを低減することに利用できます。
 
-<div class="alert alert-info" role="alert">
-2014年11月3日 #{@system[:systemname]}のベータリリースとして自己署名証明書の作成機能をリリースしました。
-</div>
+%div{:class=>'alert-info', :role=>'alter'}
+  %ul
+    %li 2014年11月9日 自己証明書での Common Name の入力チェックのバグを修正。
+    %li 2014年11月3日 #{@system[:systemname]}のベータリリースとして自己署名証明書の作成機能をリリースしました。
 
 -# vim: nowrap sw=2 sts=2 
