@@ -1,0 +1,12 @@
+- if @created
+  %p 自己署名証明書の作成に成功しました。(id: #{@certificate_id})
+%p 
+  ダウンロード
+  %a{ :href => "/all/selfsigned/cer/#{@certificate_id}" } 公開鍵証明書
+  %a{ :href => "/all/selfsigned/key/#{@certificate_id}" } 秘密鍵
+%pre= @certificate
+%p
+  [
+  %a{:href=>'/all/selfsigned'} 自己署名証明書リスト
+  ]
+

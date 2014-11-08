@@ -25,7 +25,8 @@
       %tr
         %td= row[0]
         %td= row[1].slice(0, 19)
-        %td= row[2]
+        %td
+          %a{:href=>"/all/selfsigned/#{row[0]}"}= row[2]
         %td= row[3].slice(0, 19)
         %td= row[4].slice(0, 19)
         %td
